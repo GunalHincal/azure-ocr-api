@@ -59,20 +59,21 @@ async def extract_text(file: UploadFile = File(...)):
             print(f"Image Size: {image.size}")  
 
             # Görseli uygun bir moda dönüştür
-            if image.mode not in ["RGB", "L"]:
-                if image.mode == "RGBA":
-                    # Transparan pikselleri beyaz arka plan ile doldur
-                    background = Image.new("RGB", image.size, (255, 255, 255))
-                    image = Image.alpha_composite(background, image)
-                
-            else:
+            if image.mode == "RGBA":
+                # Transparan pikselleri beyaz arka plan ile doldur
+                background = Image.new("RGB", image.size, (255, 255, 255))    # Transparan pikselleri beyaz arka plan ile doldur
+                image = Image.alpha_composite(background, image)
+                print("Converted RGBA to RGB with white background.")
+            elif image.mode not in ["RGB", "L"]:
                     # Diğer modları RGB'ye dönüştür
                     image = image.convert("RGB")
+                    print("Converted image to RGB.")
             
             # Gerekirse yeniden boyutlandır
             if max(image.size) > 2000:  # Görsel çok büyükse yeniden boyutlandır
                 new_size = (2000, 2000) if image.size[0] > image.size[1] else (image.size[0], 2000)
                 image.thumbnail(new_size, Image.ANTIALIAS)
+                print(f"Resized image to {image.size}.")
             
             # Görüntüyü JPEG formatına kaydet
             image_stream = io.BytesIO()
@@ -81,6 +82,9 @@ async def extract_text(file: UploadFile = File(...)):
             print("Image successfully processed and converted to JPEG.")
         except UnidentifiedImageError:
             return {"error": "The uploaded file is not a valid image."}
+        except Exception as e:
+            print(f"Error during image processing: {e}")
+            return {"error": f"An error occurred during image processing: {str(e)}"}
 
         # Azure OCR için görüntü gönder
         results = computervision_client.read_in_stream(image_stream, raw=True)
@@ -108,7 +112,3 @@ async def extract_text(file: UploadFile = File(...)):
         print(f"Raw Error: {e}")
         return {"error": f"An error occurred: {str(e)}"}
     
-
-
-
-
