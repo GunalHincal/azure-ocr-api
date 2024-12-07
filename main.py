@@ -59,13 +59,15 @@ async def extract_text(file: UploadFile = File(...)):
             print(f"Image Size: {image.size}")  
 
             # Görseli uygun bir moda dönüştür
-            if image.mode == "RGBA":
-                # Transparan pikselleri beyaz arka plan ile doldur
-                background = Image.new("RGB", image.size, (255, 255, 255))
-                image = Image.alpha_composite(background, image)
-            elif image.mode not in ["RGB", "L", "P"]:
-                # Diğer uyumsuz modları RGB'ye dönüştür
-                image = image.convert("RGB")
+            if image.mode not in ["RGB", "L"]:
+                if image.mode == "RGBA":
+                    # Transparan pikselleri beyaz arka plan ile doldur
+                    background = Image.new("RGB", image.size, (255, 255, 255))
+                    image = Image.alpha_composite(background, image)
+                
+            else:
+                    # Diğer modları RGB'ye dönüştür
+                    image = image.convert("RGB")
             
             # Gerekirse yeniden boyutlandır
             if max(image.size) > 2000:  # Görsel çok büyükse yeniden boyutlandır
