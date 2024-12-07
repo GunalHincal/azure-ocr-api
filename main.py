@@ -47,7 +47,9 @@ async def extract_text(file: UploadFile = File(...)):
     try:
         # Dosyayı oku ve türünü kontrol et
         contents = await file.read()
-        print(f"Uploaded file type: {file.content_type}")
+        print(f"Uploaded file type: {file.content_type}")  
+        if file.content_type not in ["image/jpeg", "image/png"]:
+            return {"error": "Unsupported file type. Please upload a JPEG or PNG image."}
 
         # Görüntüyü Pillow ile aç ve gerekirse dönüştür
         try:
@@ -57,14 +59,13 @@ async def extract_text(file: UploadFile = File(...)):
             print(f"Image Size: {image.size}")  
 
             # Görseli uygun bir moda dönüştür
-            if image.mode not in ["RGB", "L", "P"]:  # Eğer uyumsuz bir mod varsa
-                if image.mode == "RGBA":
-                    # Transparan pikselleri beyaz arka plan ile doldur
-                    background = Image.new("RGB", image.size, (255, 255, 255))
-                    image = Image.alpha_composite(background, image)
-                else:
-                    # Diğer modları RGB'ye dönüştür
-                    image = image.convert("RGB")
+            if image.mode == "RGBA":
+                # Transparan pikselleri beyaz arka plan ile doldur
+                background = Image.new("RGB", image.size, (255, 255, 255))
+                image = Image.alpha_composite(background, image)
+            elif image.mode not in ["RGB", "L", "P"]:
+                # Diğer uyumsuz modları RGB'ye dönüştür
+                image = image.convert("RGB")
             
             # Gerekirse yeniden boyutlandır
             if max(image.size) > 2000:  # Görsel çok büyükse yeniden boyutlandır
@@ -75,6 +76,7 @@ async def extract_text(file: UploadFile = File(...)):
             image_stream = io.BytesIO()
             image.save(image_stream, format="JPEG")
             image_stream.seek(0)  # Stream'in başına dön
+            print("Image successfully processed and converted to JPEG.")
         except UnidentifiedImageError:
             return {"error": "The uploaded file is not a valid image."}
 
