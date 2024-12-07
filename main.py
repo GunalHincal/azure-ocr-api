@@ -4,8 +4,9 @@ from fastapi import FastAPI, File, UploadFile
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
 import config
-import time  # Hata almamak için time modülü import edildi
-import io  # Bytes'ı akışa çevirmek için gerekli
+import time
+import io
+from PIL import Image, UnidentifiedImageError
 
 # FastAPI uygulaması
 app = FastAPI()
@@ -44,27 +45,38 @@ async def extract_text(file: UploadFile = File(...)):
               Eğer işlem başarısız olursa hata mesajı döner.
     """
     try:
-        # Görsel türünü kontrol et
-        print(f"Uploaded file type: {file.content_type}")  # Ör: image/jpeg
-        if file.content_type not in ["image/jpeg", "image/png"]:
-            return {"error": "Unsupported file type. Please upload a JPEG or PNG image."}
-
-
-        # Dosyayı oku
+        # Dosyayı oku ve türünü kontrol et
         contents = await file.read()
-        print(type(contents))  # Tür kontrolü (bytes olmalı)
+        print(f"Uploaded file type: {file.content_type}")
 
-        # Bytes verisini Pillow ile işleme ve format dönüştürme (isteğe bağlı)
-        from PIL import Image
-        image = Image.open(io.BytesIO(contents))
-        image.save("converted_image.jpg", format="JPEG")  # JPEG formatına dönüştür
+        # Görüntüyü Pillow ile aç ve gerekirse dönüştür
+        try:
+            image = Image.open(io.BytesIO(contents))
+            print(f"Original Image Mode: {image.mode}") # Görselin modunu yazdır
+            print(f"Image Format: {image.format}")
+            print(f"Image Size: {image.size}")  
 
-        # Dönüştürülmüş dosyayı tekrar oku
-        with open("converted_image.jpg", "rb") as f:
-            contents = f.read()
-
-        # Bytes verisini bir akışa dönüştür
-        image_stream = io.BytesIO(contents)
+            # Görseli uygun bir moda dönüştür
+            if image.mode not in ["RGB", "L", "P"]:  # Eğer uyumsuz bir mod varsa
+                if image.mode == "RGBA":
+                    # Transparan pikselleri beyaz arka plan ile doldur
+                    background = Image.new("RGB", image.size, (255, 255, 255))
+                    image = Image.alpha_composite(background, image)
+                else:
+                    # Diğer modları RGB'ye dönüştür
+                    image = image.convert("RGB")
+            
+            # Gerekirse yeniden boyutlandır
+            if max(image.size) > 2000:  # Görsel çok büyükse yeniden boyutlandır
+                new_size = (2000, 2000) if image.size[0] > image.size[1] else (image.size[0], 2000)
+                image.thumbnail(new_size, Image.ANTIALIAS)
+            
+            # Görüntüyü JPEG formatına kaydet
+            image_stream = io.BytesIO()
+            image.save(image_stream, format="JPEG")
+            image_stream.seek(0)  # Stream'in başına dön
+        except UnidentifiedImageError:
+            return {"error": "The uploaded file is not a valid image."}
 
         # Azure OCR için görüntü gönder
         results = computervision_client.read_in_stream(image_stream, raw=True)
@@ -91,8 +103,8 @@ async def extract_text(file: UploadFile = File(...)):
         print(f"Error Details: Endpoint={config.AZURE_ENDPOINT}, Key={config.AZURE_KEY}")
         print(f"Raw Error: {e}")
         return {"error": f"An error occurred: {str(e)}"}
-
     
 
-    
+
+
 
