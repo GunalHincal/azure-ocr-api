@@ -1,6 +1,7 @@
 # REST API kodlarımızı tutuyoruz
 
 from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from msrest.authentication import CognitiveServicesCredentials
 import config
@@ -49,25 +50,28 @@ async def extract_text(file: UploadFile = File(...)):
         contents = await file.read()
         print(f"Uploaded file type: {file.content_type}")  
         if file.content_type not in ["image/jpeg", "image/png"]:
-            return {"error": "Unsupported file type. Please upload a JPEG or PNG image."}
+            return JSONResponse(
+                content={"error": "Unsupported file type. Please upload a JPEG or PNG image."},
+                status_code=400  # Bad Request
+            )
 
         # Görüntüyü Pillow ile aç ve gerekirse dönüştür
         try:
             image = Image.open(io.BytesIO(contents))
-            print(f"Original Image Mode: {image.mode}") # Görselin modunu yazdır
+            print(f"Original Image Mode: {image.mode}")
             print(f"Image Format: {image.format}")
-            print(f"Image Size: {image.size}")  
+            print(f"Image Size: {image.size}")
 
             # Görseli uygun bir moda dönüştür
             if image.mode == "RGBA":
+                background = Image.new("RGB", image.size, (255, 255, 255))  # Transparan pikselleri beyaz arka plan ile doldur
                 # Transparan pikselleri beyaz arka plan ile doldur
-                background = Image.new("RGB", image.size, (255, 255, 255))    # Transparan pikselleri beyaz arka plan ile doldur
                 image = Image.alpha_composite(background, image)
                 print("Converted RGBA to RGB with white background.")
             elif image.mode not in ["RGB", "L"]:
-                    # Diğer modları RGB'ye dönüştür
-                    image = image.convert("RGB")
-                    print("Converted image to RGB.")
+                # Diğer modları RGB'ye dönüştür
+                image = image.convert("RGB")
+                print("Converted image to RGB.")
             
             # Gerekirse yeniden boyutlandır
             if max(image.size) > 2000:  # Görsel çok büyükse yeniden boyutlandır
@@ -81,10 +85,16 @@ async def extract_text(file: UploadFile = File(...)):
             image_stream.seek(0)  # Stream'in başına dön
             print("Image successfully processed and converted to JPEG.")
         except UnidentifiedImageError:
-            return {"error": "The uploaded file is not a valid image."}
+            return JSONResponse(
+                content={"error": "The uploaded file is not a valid image."},
+                status_code=422  # Unprocessable Entity
+            )
         except Exception as e:
             print(f"Error during image processing: {e}")
-            return {"error": f"An error occurred during image processing: {str(e)}"}
+            return JSONResponse(
+                content={"error": f"An error occurred during image processing: {str(e)}"},
+                status_code=500  # Internal Server Error
+            )
 
         # Azure OCR için görüntü gönder
         results = computervision_client.read_in_stream(image_stream, raw=True)
@@ -103,12 +113,22 @@ async def extract_text(file: UploadFile = File(...)):
             for page in read_result.analyze_result.read_results:
                 for line in page.lines:
                     extracted_text.append(line.text)
-            return {"extracted_text": extracted_text}
+            return JSONResponse(
+                content={"extracted_text": extracted_text},
+                status_code=200  # OK
+            )
 
-        return {"error": "Text extraction failed"}
+        return JSONResponse(
+            content={"error": "Text extraction failed"},
+            status_code=400  # Bad Request
+        )
     except Exception as e:
-        # Hata durumunda, detaylı hata mesajını döndürür
+        # Hata durumunda hata mesajını döndürür
         print(f"Error Details: Endpoint={config.AZURE_ENDPOINT}, Key={config.AZURE_KEY}")
         print(f"Raw Error: {e}")
-        return {"error": f"An error occurred: {str(e)}"}
+        return JSONResponse(
+            content={"error": f"An error occurred: {str(e)}"},
+            status_code=500  # Internal Server Error
+        )
+
     
