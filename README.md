@@ -23,30 +23,30 @@ This project provides a **REST API** to extract text from images using **Azure C
 
 1.  **Clone the repository**:
  
- _bash_      
-`git clone https://github.com/username/azure-ocr-api.git
-    cd azure-ocr-api` 
+ _bash_
+
+`git clone https://github.com/username/azure-ocr-api.git cd azure-ocr-api` 
     
     
 2.  **Install dependencies**:
     
-    _bash_
-    `pip install -r requirements.txt`
+_bash_
+
+`pip install -r requirements.txt`
      
     
-3.  **Set up the configuration**: 
-
-Create a `config.py` file and add the following:
+3.  **Set up the configuration**: Create a `config.py` file and add the following:
  
-_python_ 
-`AZURE_ENDPOINT = "https://<your-endpoint>.cognitiveservices.azure.com/"
-    AZURE_KEY = "<your-subscription-key>"` 
+_python_
+
+`AZURE_ENDPOINT = "https://<your-endpoint>.cognitiveservices.azure.com/"AZURE_KEY = "<your-subscription-key>"` 
     
     
 5.  **Run the API**:
     
-    _bash_
-    `uvicorn main:app --reload` 
+_bash_
+
+`uvicorn main:app --reload` 
     
     
 6.  **Access the API documentation**: 
@@ -54,7 +54,8 @@ _python_
 Open the following URL in your browser:
 
 _arduino_
-    `http://127.0.0.1:8000/docs` 
+
+`http://127.0.0.1:8000/docs` 
     
 
 ## Usage
@@ -66,25 +67,25 @@ _arduino_
     -   **URL**: `/`
     -   **Method**: GET
     -   **Description**: Checks if the API is running.
+
 2.  **Text extraction endpoint**:
     
     -   **URL**: `/extract-text/`
     -   **Method**: POST
     -   **Body**: `multipart/form-data`
         -   An image file (uploaded with the `file` key).
+        
    -   **Response**:
 
-  _json_    
-`{
-          "extracted_text": ["Extracted text line 1", "Extracted text line 2"]
-        }` 
+  _json_
+
+`{"extracted_text": ["Extracted text line 1", "Extracted text line 2"]}` 
         
    -  **On Error**:
 
-_json_       
- `{
-          "error": "Error message"
-        }` 
+_json_
+
+ `{"error": "Error message"}` 
         
 
 
@@ -96,13 +97,15 @@ You can test the API using the **Swagger UI**, which provides an easy-to-use gra
 
 1.  Start the API server:
     
-    _bash_
-    `uvicorn main:app --reload` 
+_bash_
+
+`uvicorn main:app --reload` 
     
 2.  Open your browser and navigate to:
     
-    arduino
-    `http://127.0.0.1:8000/docs` 
+_arduino_
+
+`http://127.0.0.1:8000/docs` 
     
 3.  Locate the **`POST /extract-text/`** endpoint in the Swagger UI.
 
@@ -121,8 +124,9 @@ Alternatively, you can test the API using **Postman**.
 1.  Open Postman and create a new `POST` request.
 2.  Set the request URL to:
     
-    _vbnet_ 
-    `http://127.0.0.1:8000/extract-text/` 
+_vbnet_
+
+`http://127.0.0.1:8000/extract-text/` 
     
 3.  In the **Body** tab, select **form-data** and add the following:
 
@@ -136,6 +140,7 @@ Alternatively, you can test the API using **Postman**.
 **Example cURL Command**:
 
 _bash_
+
 `curl -X POST "http://127.0.0.1:8000/extract-text/" \
 -H "accept: application/json" \
 -F "file=@example.png"`
@@ -152,16 +157,19 @@ _bash_
 2.  Create a new branch:
     
 _bash_
+
 `git checkout -b feature/feature-name` 
     
 3.  Make your changes and commit them:
     
 _bash_
+
 `git commit -m "Added a new feature"` 
     
 4.  Push your branch:
     
 _bash_
+
 `git push origin feature/feature-name` 
     
 5.  Open a **Pull Request**.
@@ -169,6 +177,7 @@ _bash_
 .
 .
 .
+
 ## Follow Me for More Updates
 
 Stay connected and follow me for updates on my projects, insights, and tutorials:
