@@ -1,0 +1,6 @@
+# Projenin bağımlılıklarını tutuyoruz
+
+fastapi
+uvicorn
+azure-cognitiveservices-vision-computervision
+python-multipart
