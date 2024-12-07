@@ -44,8 +44,24 @@ async def extract_text(file: UploadFile = File(...)):
               Eğer işlem başarısız olursa hata mesajı döner.
     """
     try:
+        # Görsel türünü kontrol et
+        print(f"Uploaded file type: {file.content_type}")  # Ör: image/jpeg
+        if file.content_type not in ["image/jpeg", "image/png"]:
+            return {"error": "Unsupported file type. Please upload a JPEG or PNG image."}
+
+
+        # Dosyayı oku
         contents = await file.read()
         print(type(contents))  # Tür kontrolü (bytes olmalı)
+
+        # Bytes verisini Pillow ile işleme ve format dönüştürme (isteğe bağlı)
+        from PIL import Image
+        image = Image.open(io.BytesIO(contents))
+        image.save("converted_image.jpg", format="JPEG")  # JPEG formatına dönüştür
+
+        # Dönüştürülmüş dosyayı tekrar oku
+        with open("converted_image.jpg", "rb") as f:
+            contents = f.read()
 
         # Bytes verisini bir akışa dönüştür
         image_stream = io.BytesIO(contents)
@@ -73,6 +89,7 @@ async def extract_text(file: UploadFile = File(...)):
     except Exception as e:
         # Hata durumunda, detaylı hata mesajını döndürür
         print(f"Error Details: Endpoint={config.AZURE_ENDPOINT}, Key={config.AZURE_KEY}")
+        print(f"Raw Error: {e}")
         return {"error": f"An error occurred: {str(e)}"}
 
     
