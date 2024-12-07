@@ -1,12 +1,13 @@
 # Azure API bilgilerini tutuyoruz.
-
-from dotenv import load_dotenv
 import os
 
-# .env dosyasını yükle
-load_dotenv()
+if os.getenv("RENDER"):  # Render ortamında mı çalıştığını kontrol eder
+    AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT")
+    AZURE_KEY = os.getenv("AZURE_KEY")
+else:
+    from dotenv import load_dotenv
+    load_dotenv()  # Yerel geliştirme için .env dosyasını yükler
+    AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT")
+    AZURE_KEY = os.getenv("AZURE_KEY")
 
-# API bilgilerini al
-AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT")
-AZURE_KEY = os.getenv("AZURE_KEY")
 
