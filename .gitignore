@@ -1,6 +1,5 @@
 # Çevresel değişkenler dosyasını gizle
 .env
-myenv_ocr
 
 __pycache__
 app.egg-info
@@ -9,3 +8,4 @@ app.egg-info
 .coverage
 htmlcov
 .cache
+venv
