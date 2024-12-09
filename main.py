@@ -76,7 +76,7 @@ async def extract_text(file: UploadFile = File(...)):
             # Gerekirse yeniden boyutlandır
             if max(image.size) > 2000:  # Görsel çok büyükse yeniden boyutlandır
                 new_size = (2000, 2000) if image.size[0] > image.size[1] else (image.size[0], 2000)
-                image.thumbnail(new_size, Image.Resampling.LANCZOS)
+                image.thumbnail(new_size, Image.LANCZOS)
                 print(f"Resized image to {image.size}.")
             
             # Görüntüyü JPEG formatına kaydet
