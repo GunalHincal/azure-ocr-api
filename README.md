@@ -213,13 +213,9 @@ You can use Docker to containerize and run the application. Here's a simple appr
 
 Stay connected and follow me for updates on my projects, insights, and tutorials:
 
--   LinkedIn: [Connect with me professionally to learn more about my work and collaborations](https://www.linkedin.com/in/gunalhincal)
+-  **LinkedIn:** **[Connect with me professionally to learn more about my work and collaborations](https://www.linkedin.com/in/gunalhincal)**
     
--   Medium: [Check out my blog for articles on technology, data science, and more!](https://medium.com/@hincalgunal)
-    
-
- -   **[LinkedIn](https://www.linkedin.com/in/gunalhincal)**: Connect with me professionally to learn more about my work and collaborations.
- -   **[Medium](https://medium.com/@hincalgunal)**: Check out my blog for articles on technology, data science, and more!
+-   **Medium:** **[Check out my blog for articles on technology, data science, and more!](https://medium.com/@hincalgunal)**
 
 Feel free to reach out or follow for more updates! 😊 Have Fun!
 
