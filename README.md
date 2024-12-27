@@ -22,7 +22,7 @@ This project provides a REST API to extract text from images using Azure Compute
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/username/azure-ocr-api.git
+    git clone https://github.com/GunalHincal/azure-ocr-api.git
     cd azure-ocr-api
     ```
     
